@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Standupovka Alias</title>
+    <link href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" rel="stylesheet">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .timer {
+            font-size: 2em;
+            margin: 20px 0;
+            text-align: center;
+        }
+        button {
+            background-color: red;
+            color: white;
+            width: 100%;
+            max-width: 300px;
+        }
+        .buttons {
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+        .buttons button {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        #word-display {
+            font-size: 3em;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        #team-scores {
+            font-weight: bold;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        form input {
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 300px;
+        }
+        nav ul {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 0;
+        }
+        nav ul li {
+            margin: 0 10px;
+        }
+        @media (max-width: 600px) {
+            .timer {
+                font-size: 1.5em;
+            }
+            #word-display {
+                font-size: 2em;
+            }
+            #team-scores {
+                font-size: 1.2em;
+            }
+        }
+        .final-scores {
+            font-size: 2em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <div class="grid" id="game-container">
+            <section>
+                <hgroup>
+                    <h2 id="main-title">Standupovka Alias</h2>
+                    <h3 id="sub-title">Începeți jocul și ghiciți cuvintele!</h3>
+                </hgroup>
+                <form id="settings-form">
+                    <label for="team1">Numele echipei 1:</label>
+                    <input type="text" id="team1" name="team1" required>
+                    <label for="team2">Numele echipei 2:</label>
+                    <input type="text" id="team2" name="team2" required>
+                    <label for="team3">Numele echipei 3:</label>
+                    <input type="text" id="team3" name="team3" required>
+                    <label for="word-file">Încărcați propriile cuvinte:</label>
+                    <input type="file" id="word-file" name="word-file" accept=".txt" required>
+                </form>
+                <button id="start-game">Începe jocul</button>
+                <p id="word-display" style="display: none;">Aici va fi afișat cuvântul.</p>
+                <div class="timer" id="timer" style="display: none;">00:00</div>
+                <div id="team-scores"></div>
+                <div class="buttons">
+                    <button id="skip-word">Omite cuvântul</button>
+                    <button id="next-word">Următorul cuvânt (1 punct)</button>
+                </div>
+                <button id="next-round" style="display: none;">Următorul Rând</button>
+                <button id="new-game" style="display: none;">Începe jocul din nou</button>
+            </section>
+        </div>
+    </main>
+    <script>
+        let timerInterval;
+        let time = 60;
+        let words = [];
+        let usedWords = [];
+        let currentWordIndex = 0;
+        let team1Score = 0;
+        let team2Score = 0;
+        let team3Score = 0;
+        let team1Name = '';
+        let team2Name = '';
+        let team3Name = '';
+        let currentTeam = 1; // 1 for team 1, 2 for team 2, 3 for team 3
+
+        document.getElementById('word-file').addEventListener('change', handleFileUpload);
+        document.getElementById('start-game').addEventListener('click', startGame);
+        document.getElementById('skip-word').addEventListener('click', skipWord);
+        document.getElementById('next-word').addEventListener('click', nextWord);
+        document.getElementById('next-round').addEventListener('click', startNextRound);
+        document.getElementById('new-game').addEventListener('click', startNewGame);
+
+        function startGame(event) {
+            event.preventDefault();
+            team1Name = document.getElementById('team1').value;
+            team2Name = document.getElementById('team2').value;
+            team3Name = document.getElementById('team3').value;
+            if (team1Name && team2Name && team3Name && words.length > 0) {
+                document.getElementById('settings-form').style.display = 'none';
+                document.getElementById('start-game').style.display = 'none';
+                document.getElementById('main-title').style.display = 'none';
+                document.getElementById('sub-title').style.display = 'none';
+                updateScores();
+                document.getElementById('timer').style.display = 'block';
+                document.getElementById('word-display').style.display = 'block';
+                startTimer();
+                showWord();
+                document.querySelector('.buttons').style.display = 'block';
+            } else {
+                alert('Vă rugăm să introduceți numele echipelor și să încărcați cuvintele.');
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            time = 60;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                time--;
+                updateTimerDisplay();
+                if (time <= 0) {
+                    clearInterval(timerInterval);
+                    endRound();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(time / 60);
+            const seconds = time % 60;
+            document.getElementById('timer').innerText = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const text = event.target.result;
+                words = text.split('\n').filter(word => word.trim() !== '');
+            };
+            reader.readAsText(file);
+        }
+
+        function showWord() {
+            if (words.length === 0) {
+                document.getElementById('word-display').innerText = 'Cuvintele s-au terminat!';
+                return;
+            }
+            currentWordIndex = Math.floor(Math.random() * words.length);
+            document.getElementById('word-display').innerText = words[currentWordIndex];
+            usedWords.push(words[currentWordIndex]);
+            words.splice(currentWordIndex, 1);
+        }
+
+        function skipWord() {
+            showWord();
+        }
+
+        function nextWord() {
+            if (currentTeam === 1) {
+                team1Score++;
+            } else if (currentTeam === 2) {
+                team2Score++;
+            } else if (currentTeam === 3) {
+                team3Score++;
+            }
+            updateScores();
+            showWord();
+        }
+
+        function updateScores() {
+            if (currentTeam === 1) {
+                document.getElementById('team-scores').innerText = `${team1Name}: ${team1Score}`;
+            } else if (currentTeam === 2) {
+                document.getElementById('team-scores').innerText = `${team2Name}: ${team2Score}`;
+            } else if (currentTeam === 3) {
+                document.getElementById('team-scores').innerText = `${team3Name}: ${team3Score}`;
+            }
+        }
+
+        function endRound() {
+            document.querySelector('.buttons').style.display = 'none';
+            document.getElementById('next-round').style.display = 'block';
+            if (currentTeam === 1) {
+                document.getElementById('team-scores').innerText = `Runda terminată! ${team1Name}: ${team1Score}`;
+                currentTeam = 2;
+            } else if (currentTeam === 2) {
+                document.getElementById('team-scores').innerText = `Runda terminată! ${team2Name}: ${team2Score}`;
+                currentTeam = 3;
+            } else if (currentTeam === 3) {
+                document.getElementById('team-scores').innerText = `Runda terminată! ${team3Name}: ${team3Score}`;
+                document.getElementById('next-round').style.display = 'none';
+                document.getElementById('new-game').style.display = 'block';
+                document.getElementById('team-scores').innerHTML = `
+                    <div class="final-scores">${team1Name}: ${team1Score}</div>
+                    <div class="final-scores">${team2Name}: ${team2Score}</div>
+                    <div class="final-scores">${team3Name}: ${team3Score}</div>
+                `;
+            }
+        }
+
+        function startNextRound() {
+            document.getElementById('next-round').style.display = 'none';
+            updateScores();
+            document.getElementById('timer').style.display = 'block';
+            document.querySelector('.buttons').style.display = 'block';
+            startTimer();
+            showWord();
+        }
+
+        function startNewGame() {
+            document.getElementById('new-game').style.display = 'none';
+            document.getElementById('settings-form').style.display = 'block';
+            document.getElementById('start-game').style.display = 'block';
+            document.getElementById('team-scores').innerText = '';
+            team1Score = 0;
+            team2Score = 0;
+            team3Score = 0;
+            currentTeam = 1;
+            words = usedWords.concat(words);
+            usedWords = [];
+        }
+    </script>
+</body>
+</html>
