@@ -67,9 +67,6 @@
         #startGame, #newGame {
             background-color: #DB1818;
         }
-        #fullscreenToggle {
-            background-color: #007aff;
-        }
         #guessed, #skipped {
             width: calc(50% - 5px);
             display: inline-block;
@@ -134,15 +131,6 @@
         .fade-in-out {
             animation: fadeInOut 0.6s ease-in-out;
         }
-        #fullscreenToggle {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            width: auto;
-            padding: 5px 10px;
-            font-size: 14px;
-            z-index: 1000;
-        }
         #footer-image-container {
             width: 48%;
             overflow: hidden;
@@ -165,12 +153,6 @@
             }
             #word {
                 font-size: 28px;
-            }
-            #fullscreenToggle {
-                top: 5px;
-                right: 5px;
-                padding: 3px 6px;
-                font-size: 12px;
             }
         }
         @media screen and (max-height: 600px) and (orientation: landscape) {
@@ -248,7 +230,6 @@
             <img id="footer-image" src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bkalias-dANWoyyM3nxDAWNqb9yHnbNEj0CZKF.png" alt="Alias Standupovka">
         </div>
     </div>
-    <button id="fullscreenToggle">Fullscreen</button>
 
     <script>
         let words = [];
@@ -315,7 +296,7 @@
             document.getElementById('skipped').style.display = 'inline-block';
             document.getElementById('scores').style.display = 'none';
             document.getElementById('skippedWords').style.display = 'none';
-            document.querySelector('.button-container').style.height = '40vh';
+            document.querySelector('.button-container').style.height = '';
             isTimeUp = false;
             currentTeamIndex = (currentTeamIndex + 1) % teams.length;
             startTurn();
@@ -396,8 +377,7 @@
             updateSkippedWords();
         }
 
-        function updateSc
-ores() {
+        function updateScores() {
             const scoresDiv = document.getElementById('scores');
             scoresDiv.innerHTML = '<h3>SCORURI:</h3>';
             teams.forEach(team => {
@@ -435,77 +415,8 @@ ores() {
             document.getElementById('guessed').style.display = 'inline-block';
             document.getElementById('skipped').style.display = 'inline-block';
             document.getElementById('nextRound').style.display = 'none';
-            document.querySelector('.button-container').style.height = '40vh';
+            document.querySelector('.button-container').style.height = '';
         }
-
-        // Fullscreen functionality
-        const fullscreenToggle = document.getElementById('fullscreenToggle');
-        fullscreenToggle.addEventListener('click', toggleFullscreen);
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen();
-                } else if (document.documentElement.webkitRequestFullscreen) { // iOS Safari
-                    document.documentElement.webkitRequestFullscreen();
-                }
-                fullscreenToggle.textContent = 'Ieșire Fullscreen';
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) { // iOS Safari
-                    document.webkitExitFullscreen();
-                }
-                fullscreenToggle.textContent = 'Fullscreen';
-            }
-        }
-
-        document.addEventListener('fullscreenchange', updateFullscreenButtonText);
-        document.addEventListener('webkitfullscreenchange', updateFullscreenButtonText);
-
-        function updateFullscreenButtonText() {
-            fullscreenToggle.textContent = document.fullscreenElement || document.webkitFullscreenElement ? 'Ieșire Fullscreen' : 'Fullscreen';
-        }
-
-        // Handle orientation change
-        window.addEventListener('orientationchange', function() {
-            if (document.fullscreenElement || document.webkitFullscreenElement) {
-                setTimeout(function() {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    } else if (document.webkitExitFullscreen) { // iOS Safari
-                        document.webkitExitFullscreen();
-                    }
-                    setTimeout(function() {
-                        if (document.documentElement.requestFullscreen) {
-                            document.documentElement.requestFullscreen();
-                        } else if (document.documentElement.webkitRequestFullscreen) { // iOS Safari
-                            document.documentElement.webkitRequestFullscreen();
-                        }
-                    }, 1000);
-                }, 1000);
-            }
-        });
-
-        // Check if the browser supports the fullscreen API
-        function isFullscreenSupported() {
-            return document.fullscreenEnabled || 
-                   document.webkitFullscreenEnabled || 
-                   document.mozFullScreenEnabled ||
-                   document.msFullscreenEnabled;
-        }
-
-        // Update fullscreen button visibility
-        function updateFullscreenButtonVisibility() {
-            if (isFullscreenSupported()) {
-                fullscreenToggle.style.display = 'block';
-            } else {
-                fullscreenToggle.style.display = 'none';
-            }
-        }
-
-        // Call this function when the page loads
-        updateFullscreenButtonVisibility();
     </script>
 </body>
 </html>
