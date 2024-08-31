@@ -40,6 +40,7 @@
             display: flex;
             flex-direction: column;
             overflow-y: auto;
+            max-height: calc(100vh - 40px);
         }
         h2 {
             text-align: center;
@@ -63,7 +64,7 @@
         button:hover {
             opacity: 0.8;
         }
-        #startGame {
+        #startGame, #newGame {
             background-color: #DB1818;
         }
         #fullscreenToggle {
@@ -113,6 +114,11 @@
         #scores, #skippedWords {
             margin-top: 20px;
             text-align: left;
+            font-weight: bold;
+        }
+        #skippedWords {
+            color: #ff3b30;
+            text-transform: uppercase;
             font-weight: bold;
         }
         .button-container {
@@ -166,6 +172,34 @@
                 font-size: 12px;
             }
         }
+        @media screen and (max-height: 600px) and (orientation: landscape) {
+            .main-content {
+                flex-direction: row;
+            }
+            .container {
+                width: 60%;
+                font-size: 14px;
+            }
+            #footer-image-container {
+                width: 35%;
+            }
+            #word {
+                font-size: 24px;
+                margin: 10px 0;
+            }
+            input, button {
+                padding: 5px;
+                margin: 5px 0;
+                font-size: 14px;
+            }
+            #timer-bar {
+                height: 5px;
+                margin-bottom: 10px;
+            }
+            #scores, #skippedWords {
+                margin-top: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -189,6 +223,7 @@
                     <button id="skipped">OMITE</button>
                 </div>
                 <button id="nextRound">Următoarea RUNDĂ</button>
+                <button id="newGame" style="display: none;">Începe un nou Joc</button>
                 <div id="scores"></div>
                 <div id="skippedWords"></div>
             </div>
@@ -269,6 +304,10 @@
             startTurn();
         });
 
+        document.getElementById('newGame').addEventListener('click', function() {
+            resetGame();
+        });
+
         function startTurn() {
             document.getElementById('currentTeam').textContent = `Rândul echipei: ${teams[currentTeamIndex].name}`;
             nextWord();
@@ -333,6 +372,7 @@
             document.getElementById('guessed').style.display = 'none';
             document.getElementById('skipped').style.display = 'none';
             document.getElementById('nextRound').style.display = 'none';
+            document.getElementById('newGame').style.display = 'block';
             updateScores();
             updateSkippedWords();
         }
@@ -349,8 +389,32 @@
         function updateSkippedWords() {
             const skippedWordsDiv = document.getElementById('skippedWords');
             skippedWordsDiv.innerHTML = `<h3>Cuvinte omise de ${teams[currentTeamIndex].name}:</h3>`;
-            skippedWordsDiv.innerHTML += `<p>${teams[currentTeamIndex].skippedWords.join(', ')}</p>`;
+            skippedWordsDiv.innerHTML += `<p>${teams[currentTeamIndex].skippedWords.join(', ').toUpperCase()}</p>`;
             skippedWordsDiv.style.display = 'block';
+        }
+
+        function resetGame() {
+            // Reset game state
+            words = [];
+            teams = [];
+            currentWord = '';
+            currentTeamIndex = 0;
+            isTimeUp = false;
+
+            // Reset UI
+            document.getElementById('setup').style.display = 'block';
+            document.getElementById('game').style.display = 'none';
+            document.getElementById('wordFile').value = '';
+            document.getElementById('team1').value = '';
+            document.getElementById('team2').value = '';
+            document.getElementById('team3').value = '';
+            document.getElementById('word').textContent = '';
+            document.getElementById('scores').innerHTML = '';
+            document.getElementById('skippedWords').innerHTML = '';
+            document.getElementById('newGame').style.display = 'none';
+            document.getElementById('guessed').style.display = 'inline-block';
+            document.getElementById('skipped').style.display = 'inline-block';
+            document.getElementById('nextRound').style.display = 'none';
         }
 
         // Fullscreen functionality
