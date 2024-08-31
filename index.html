@@ -123,6 +123,7 @@
         }
         .button-container {
             overflow: hidden;
+            transition: height 0.3s ease-out;
         }
         @keyframes fadeInOut {
             0% { opacity: 0; }
@@ -314,6 +315,7 @@
             document.getElementById('skipped').style.display = 'inline-block';
             document.getElementById('scores').style.display = 'none';
             document.getElementById('skippedWords').style.display = 'none';
+            document.querySelector('.button-container').style.height = '40vh';
             isTimeUp = false;
             currentTeamIndex = (currentTeamIndex + 1) % teams.length;
             startTurn();
@@ -372,6 +374,7 @@
             document.getElementById('guessed').style.display = 'none';
             document.getElementById('skipped').style.display = 'none';
             document.getElementById('nextRound').style.display = 'block';
+            document.querySelector('.button-container').style.height = '0';
             updateScores();
             updateSkippedWords();
         }
@@ -388,11 +391,13 @@
             document.getElementById('skipped').style.display = 'none';
             document.getElementById('nextRound').style.display = 'none';
             document.getElementById('newGame').style.display = 'block';
+            document.querySelector('.button-container').style.height = '0';
             updateScores();
             updateSkippedWords();
         }
 
-        function updateScores() {
+        function updateSc
+ores() {
             const scoresDiv = document.getElementById('scores');
             scoresDiv.innerHTML = '<h3>SCORURI:</h3>';
             teams.forEach(team => {
@@ -430,6 +435,7 @@
             document.getElementById('guessed').style.display = 'inline-block';
             document.getElementById('skipped').style.display = 'inline-block';
             document.getElementById('nextRound').style.display = 'none';
+            document.querySelector('.button-container').style.height = '40vh';
         }
 
         // Fullscreen functionality
