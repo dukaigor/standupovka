@@ -39,6 +39,7 @@
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
         }
         h2 {
             text-align: center;
@@ -109,11 +110,10 @@
             background-color: #34c759;
             transition: width 1s linear;
         }
-        #scores {
+        #scores, #skippedWords {
             margin-top: 20px;
-            text-align: center;
+            text-align: left;
             font-weight: bold;
-            text-transform: uppercase;
         }
         .button-container {
             overflow: hidden;
@@ -190,6 +190,7 @@
                 </div>
                 <button id="nextRound">Următoarea RUNDĂ</button>
                 <div id="scores"></div>
+                <div id="skippedWords"></div>
             </div>
         </div>
         <div id="footer-image-container">
@@ -203,7 +204,6 @@
         let teams = [];
         let currentWord = '';
         let currentTeamIndex = 0;
-        let skippedWords = [];
         let timer;
         let isTimeUp = false;
         const ROUND_TIME = 60;
@@ -220,9 +220,9 @@
 
         document.getElementById('startGame').addEventListener('click', function() {
             teams = [
-                {name: document.getElementById('team1').value, score: 0},
-                {name: document.getElementById('team2').value, score: 0},
-                {name: document.getElementById('team3').value, score: 0}
+                {name: document.getElementById('team1').value, guessedWords: 0, skippedWords: []},
+                {name: document.getElementById('team2').value, guessedWords: 0, skippedWords: []},
+                {name: document.getElementById('team3').value, guessedWords: 0, skippedWords: []}
             ];
             if (words.length > 0 && teams.every(team => team.name !== '')) {
                 document.getElementById('setup').style.display = 'none';
@@ -239,20 +239,20 @@
         function handleGuessedOrSkipped(event) {
             if (isTimeUp) {
                 if (event.target.id === 'guessed') {
-                    teams[currentTeamIndex].score++;
+                    teams[currentTeamIndex].guessedWords++;
                 } else {
-                    skippedWords.push(currentWord);
+                    teams[currentTeamIndex].skippedWords.push(currentWord);
                 }
                 endRound();
             } else {
                 if (event.target.id === 'guessed') {
-                    teams[currentTeamIndex].score++;
-                    if (teams[currentTeamIndex].score >= WINNING_SCORE) {
+                    teams[currentTeamIndex].guessedWords++;
+                    if (teams[currentTeamIndex].guessedWords >= WINNING_SCORE) {
                         endGame(true);
                         return;
                     }
                 } else {
-                    skippedWords.push(currentWord);
+                    teams[currentTeamIndex].skippedWords.push(currentWord);
                 }
                 nextWord();
             }
@@ -263,6 +263,7 @@
             document.getElementById('guessed').style.display = 'inline-block';
             document.getElementById('skipped').style.display = 'inline-block';
             document.getElementById('scores').style.display = 'none';
+            document.getElementById('skippedWords').style.display = 'none';
             isTimeUp = false;
             currentTeamIndex = (currentTeamIndex + 1) % teams.length;
             startTurn();
@@ -280,7 +281,7 @@
             void wordElement.offsetWidth; // Trigger reflow
             wordElement.classList.add('fade-in-out');
 
-            const availableWords = words.filter(word => !skippedWords.includes(word));
+            const availableWords = words.filter(word => !teams.some(team => team.skippedWords.includes(word)));
             if (availableWords.length > 0) {
                 const randomIndex = Math.floor(Math.random() * availableWords.length);
                 currentWord = availableWords[randomIndex];
@@ -318,6 +319,7 @@
             document.getElementById('skipped').style.display = 'none';
             document.getElementById('nextRound').style.display = 'block';
             updateScores();
+            updateSkippedWords();
         }
 
         function endGame(hasWinner) {
@@ -332,15 +334,23 @@
             document.getElementById('skipped').style.display = 'none';
             document.getElementById('nextRound').style.display = 'none';
             updateScores();
+            updateSkippedWords();
         }
 
         function updateScores() {
             const scoresDiv = document.getElementById('scores');
             scoresDiv.innerHTML = '<h3>SCORURI:</h3>';
             teams.forEach(team => {
-                scoresDiv.innerHTML += `<p>${team.name.toUpperCase()}: ${team.score}</p>`;
+                scoresDiv.innerHTML += `<p>${team.name.toUpperCase()}: ${team.guessedWords} ghicite, ${team.skippedWords.length} omise</p>`;
             });
             scoresDiv.style.display = 'block';
+        }
+
+        function updateSkippedWords() {
+            const skippedWordsDiv = document.getElementById('skippedWords');
+            skippedWordsDiv.innerHTML = `<h3>Cuvinte omise de ${teams[currentTeamIndex].name}:</h3>`;
+            skippedWordsDiv.innerHTML += `<p>${teams[currentTeamIndex].skippedWords.join(', ')}</p>`;
+            skippedWordsDiv.style.display = 'block';
         }
 
         // Fullscreen functionality
