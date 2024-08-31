@@ -109,12 +109,27 @@
             animation: fadeInOut 0.6s ease-in-out;
         }
         #fullscreenToggle {
-            position: absolute;
+            position: fixed;
             top: 10px;
             right: 10px;
             width: auto;
             padding: 5px 10px;
             font-size: 14px;
+            z-index: 1000;
+        }
+        @media screen and (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            #word {
+                font-size: 28px;
+            }
+            #fullscreenToggle {
+                top: 5px;
+                right: 5px;
+                padding: 3px 6px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -293,26 +308,18 @@
         fullscreenToggle.addEventListener('click', toggleFullscreen);
 
         function toggleFullscreen() {
-            if (!document.fullscreenElement) {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
                 if (document.documentElement.requestFullscreen) {
                     document.documentElement.requestFullscreen();
-                } else if (document.documentElement.mozRequestFullScreen) { // Firefox
-                    document.documentElement.mozRequestFullScreen();
-                } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                } else if (document.documentElement.webkitRequestFullscreen) { // iOS Safari
                     document.documentElement.webkitRequestFullscreen();
-                } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
-                    document.documentElement.msRequestFullscreen();
                 }
                 fullscreenToggle.textContent = 'Ieșire Fullscreen';
             } else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
-                } else if (document.mozCancelFullScreen) { // Firefox
-                    document.mozCancelFullScreen();
-                } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+                } else if (document.webkitExitFullscreen) { // iOS Safari
                     document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) { // IE/Edge
-                    document.msExitFullscreen();
                 }
                 fullscreenToggle.textContent = 'Fullscreen';
             }
@@ -320,12 +327,30 @@
 
         document.addEventListener('fullscreenchange', updateFullscreenButtonText);
         document.addEventListener('webkitfullscreenchange', updateFullscreenButtonText);
-        document.addEventListener('mozfullscreenchange', updateFullscreenButtonText);
-        document.addEventListener('MSFullscreenChange', updateFullscreenButtonText);
 
         function updateFullscreenButtonText() {
-            fullscreenToggle.textContent = document.fullscreenElement ? 'Ieșire Fullscreen' : 'Fullscreen';
+            fullscreenToggle.textContent = document.fullscreenElement || document.webkitFullscreenElement ? 'Ieșire Fullscreen' : 'Fullscreen';
         }
+
+        // Handle orientation change
+        window.addEventListener('orientationchange', function() {
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                setTimeout(function() {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) { // iOS Safari
+                        document.webkitExitFullscreen();
+                    }
+                    setTimeout(function() {
+                        if (document.documentElement.requestFullscreen) {
+                            document.documentElement.requestFullscreen();
+                        } else if (document.documentElement.webkitRequestFullscreen) { // iOS Safari
+                            document.documentElement.webkitRequestFullscreen();
+                        }
+                    }, 1000);
+                }, 1000);
+            }
+        });
     </script>
 </body>
 </html>
