@@ -2,9 +2,7 @@
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Joc Alias</title>
     <link rel="apple-touch-icon" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bkalias-dANWoyyM3nxDAWNqb9yHnbNEj0CZKF.png">
     <link rel="icon" type="image/png" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bkalias-dANWoyyM3nxDAWNqb9yHnbNEj0CZKF.png">
@@ -16,18 +14,16 @@
             padding: 0;
             height: 100vh;
             width: 100vw;
-            overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #DB1818;
-            touch-action: manipulation;
             display: flex;
             flex-direction: column;
         }
         .main-content {
             display: flex;
-            flex-direction: row;
-            align-items: stretch;
-            justify-content: space-between;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             flex-grow: 1;
             padding: 20px;
             box-sizing: border-box;
@@ -35,45 +31,48 @@
         .container {
             background-color: white;
             border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 48%;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 1000px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
-            max-height: calc(100vh - 40px);
         }
         h2 {
             text-align: center;
             margin-top: 0;
+            font-size: 36px;
         }
         input, button {
             display: block;
             width: 100%;
             padding: 15px;
             margin: 15px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 24px;
             box-sizing: border-box;
         }
         button {
             color: white;
             border: none;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
         button:hover {
-            opacity: 0.8;
+            opacity: 0.9;
         }
         #startGame, #newGame {
             background-color: #DB1818;
+            font-size: 28px;
+            font-weight: bold;
         }
         #guessed, #skipped {
             width: calc(50% - 10px);
             display: inline-block;
-            height: 80px;
-            font-size: 24px;
+            height: 120px;
+            font-size: 36px;
             font-weight: bold;
         }
         #guessed {
@@ -87,12 +86,14 @@
         #nextRound {
             background-color: #007aff;
             display: none;
+            font-size: 28px;
+            font-weight: bold;
         }
         #game {
             display: none;
         }
         #word {
-            font-size: 72px;
+            font-size: 144px;
             font-weight: bold;
             text-align: center;
             margin: 40px 0;
@@ -101,9 +102,9 @@
         }
         #timer-bar {
             width: 100%;
-            height: 10px;
+            height: 20px;
             background-color: #e0e0e0;
-            border-radius: 5px;
+            border-radius: 10px;
             overflow: hidden;
             margin-bottom: 20px;
         }
@@ -117,15 +118,16 @@
             margin-top: 20px;
             text-align: left;
             font-weight: bold;
+            font-size: 54px;
         }
         #skippedWords {
             color: #ff3b30;
             text-transform: uppercase;
-            font-weight: bold;
         }
         .button-container {
-            overflow: hidden;
-            transition: height 0.3s ease-out;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
         }
         @keyframes fadeInOut {
             0% { opacity: 0; }
@@ -136,45 +138,13 @@
         .fade-in-out {
             animation: fadeInOut 0.6s ease-in-out;
         }
-        #footer-image-container {
-            width: 48%;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #footer-image {
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-        }
-        @media screen and (max-width: 768px) {
-            .main-content {
-                flex-direction: column;
-            }
-            .container, #footer-image-container {
-                width: 100%;
-                margin-bottom: 20px;
-            }
-            #word {
-                font-size: 48px;
-            }
-        }
-        @media screen and (min-width: 1024px) {
-            .container {
-                width: 60%;
-                margin: 0 auto;
-            }
-            #footer-image-container {
-                display: none;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="main-content">
         <div class="container">
             <div id="setup">
+                <h2>Joc Alias</h2>
                 <input type="file" id="wordFile" accept=".txt">
                 <input type="text" id="team1" placeholder="Numele Echipei 1">
                 <input type="text" id="team2" placeholder="Numele Echipei 2">
@@ -196,9 +166,6 @@
                 <div id="scores"></div>
                 <div id="skippedWords"></div>
             </div>
-        </div>
-        <div id="footer-image-container">
-            <img id="footer-image" src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bkalias-dANWoyyM3nxDAWNqb9yHnbNEj0CZKF.png" alt="Alias Standupovka">
         </div>
     </div>
 
@@ -267,7 +234,6 @@
             document.getElementById('skipped').style.display = 'inline-block';
             document.getElementById('scores').style.display = 'none';
             document.getElementById('skippedWords').style.display = 'none';
-            document.querySelector('.button-container').style.height = '';
             isTimeUp = false;
             currentTeamIndex = (currentTeamIndex + 1) % teams.length;
             startTurn();
@@ -326,7 +292,6 @@
             document.getElementById('guessed').style.display = 'none';
             document.getElementById('skipped').style.display = 'none';
             document.getElementById('nextRound').style.display = 'block';
-            document.querySelector('.button-container').style.height = '0';
             updateScores();
             updateSkippedWords();
         }
@@ -343,7 +308,6 @@
             document.getElementById('skipped').style.display = 'none';
             document.getElementById('nextRound').style.display = 'none';
             document.getElementById('newGame').style.display = 'block';
-            document.querySelector('.button-container').style.height = '0';
             updateScores();
             updateSkippedWords();
         }
@@ -386,7 +350,6 @@
             document.getElementById('guessed').style.display = 'inline-block';
             document.getElementById('skipped').style.display = 'inline-block';
             document.getElementById('nextRound').style.display = 'none';
-            document.querySelector('.button-container').style.height = '';
         }
 
         // Service Worker Registration
