@@ -171,19 +171,21 @@
 
     <script>
         let words = [];
+        let unusedWords = [];
         let teams = [];
         let currentWord = '';
         let currentTeamIndex = 0;
         let timer;
         let isTimeUp = false;
         const ROUND_TIME = 60;
-        const WINNING_SCORE = 40;
+        const WINNING_SCORE = 150;
 
         document.getElementById('wordFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             const reader = new FileReader();
             reader.onload = function(e) {
                 words = e.target.result.split('\n').filter(word => word.trim() !== '');
+                unusedWords = [...words];
             };
             reader.readAsText(file);
         });
@@ -255,14 +257,15 @@
             void wordElement.offsetWidth; // Trigger reflow
             wordElement.classList.add('fade-in-out');
 
-            const availableWords = words.filter(word => !teams.some(team => team.skippedWords.includes(word)));
-            if (availableWords.length > 0) {
-                const randomIndex = Math.floor(Math.random() * availableWords.length);
-                currentWord = availableWords[randomIndex];
-                wordElement.textContent = currentWord.toUpperCase();
-            } else {
-                endGame(false);
+            if (unusedWords.length === 0) {
+                unusedWords = [...words];
             }
+
+            const randomIndex = Math.floor(Math.random() * unusedWords.length);
+            currentWord = unusedWords[randomIndex];
+            unusedWords.splice(randomIndex, 1);
+
+            wordElement.textContent = currentWord.toUpperCase();
         }
 
         function startTimer() {
@@ -330,7 +333,7 @@
 
         function resetGame() {
             // Reset game state
-            words = [];
+            unusedWords = [...words];
             teams = [];
             currentWord = '';
             currentTeamIndex = 0;
