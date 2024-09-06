@@ -8,6 +8,8 @@
     <title>Joc Alias</title>
     <link rel="apple-touch-icon" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bkalias-dANWoyyM3nxDAWNqb9yHnbNEj0CZKF.png">
     <link rel="icon" type="image/png" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bkalias-dANWoyyM3nxDAWNqb9yHnbNEj0CZKF.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#DB1818">
     <style>
         body, html {
             margin: 0;
@@ -49,11 +51,11 @@
         input, button {
             display: block;
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
+            padding: 15px;
+            margin: 15px 0;
             border: 1px solid #ddd;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 18px;
             box-sizing: border-box;
         }
         button {
@@ -68,8 +70,11 @@
             background-color: #DB1818;
         }
         #guessed, #skipped {
-            width: calc(50% - 5px);
+            width: calc(50% - 10px);
             display: inline-block;
+            height: 80px;
+            font-size: 24px;
+            font-weight: bold;
         }
         #guessed {
             background-color: #34c759;
@@ -87,10 +92,10 @@
             display: none;
         }
         #word {
-            font-size: 36px;
+            font-size: 72px;
             font-weight: bold;
             text-align: center;
-            margin: 20px 0;
+            margin: 40px 0;
             text-transform: uppercase;
             transition: opacity 0.3s ease-in-out;
         }
@@ -152,50 +157,16 @@
                 margin-bottom: 20px;
             }
             #word {
-                font-size: 28px;
+                font-size: 48px;
             }
         }
-        @media screen and (max-height: 600px) and (orientation: landscape) {
-            .main-content {
-                flex-direction: row;
-            }
+        @media screen and (min-width: 1024px) {
             .container {
                 width: 60%;
-                font-size: 14px;
+                margin: 0 auto;
             }
             #footer-image-container {
-                width: 35%;
-            }
-            #word {
-                font-size: 24px;
-                margin: 10px 0;
-            }
-            input, button {
-                padding: 5px;
-                margin: 5px 0;
-                font-size: 14px;
-            }
-            #timer-bar {
-                height: 5px;
-                margin-bottom: 10px;
-            }
-            #scores, #skippedWords {
-                margin-top: 10px;
-            }
-            .button-container {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                height: 40vh;
-            }
-            #guessed, #skipped {
-                width: 48%;
-                height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 24px;
-                font-weight: bold;
+                display: none;
             }
         }
     </style>
@@ -416,6 +387,17 @@
             document.getElementById('skipped').style.display = 'inline-block';
             document.getElementById('nextRound').style.display = 'none';
             document.querySelector('.button-container').style.height = '';
+        }
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
         }
     </script>
 </body>
